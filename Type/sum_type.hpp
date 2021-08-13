@@ -14,7 +14,7 @@
 #pragma once
 #if not defined(_INCLUDE_PB_TYPE_SUM_TYPE_HPP_)
 #define _INCLUDE_PB_TYPE_SUM_TYPE_HPP_       1
-#include "../../../Utils/type_trait_concept.hpp"
+#include "type_trait_concept.hpp"
 namespace Pb
 {
     // 类型加法
@@ -67,7 +67,7 @@ namespace Pb
     // 判断一个类型是否为和类型
     template<
         typename... Args>
-    concept IsSumType = Utils::IsInstantOf<SumType, Args...>;
+    concept IsSumType = IsInstantOf<SumType, Args...>;
 }
 #endif // !_INCLUDE_PB_TYPE_SUM_TYPE_HPP_
 

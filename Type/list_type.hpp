@@ -14,7 +14,7 @@
 #pragma once
 #if not defined(_INCLUDE_PB_TYPE_LIST_TYPE_HPP_)
 #define _INCLUDE_PB_TYPE_LIST_TYPE_HPP_       1
-#include "../../../Utils/type_trait_concept.hpp"
+#include "type_trait_concept.hpp"
 namespace Pb
 {
     // 列表类型(其实实现是vector)
@@ -33,7 +33,7 @@ namespace Pb
     // 判断一个类型是否为和类型
     template<
         typename... Args>
-    concept IsListType = Utils::IsInstantOf<ListType, Args...>;
+    concept IsListType = IsInstantOf<ListType, Args...>;
 }
 #endif // !_INCLUDE_PB_TYPE_LIST_TYPE_HPP_
 

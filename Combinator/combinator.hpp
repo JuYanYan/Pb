@@ -32,7 +32,7 @@
 #define _INCLUDE_PB_COMBINATOR_COMBINATOR_HPP_        1
 #include "../Type/ref.hpp"
 #include "../Type/result.hpp"
-#include "../../../Utils/type_trait_fun_type.hpp"
+#include "../Type/type_trait_fun_type.hpp"
 namespace Pb
 {
     template<
@@ -103,7 +103,7 @@ namespace Pb
     static inline auto MakeCombinator(Tparser fparser)
     {
         // bool
-        using Tparam = Utils::ParamTypeOf<Tparser>;
+        using Tparam = ParamTypeOf<Tparser>;
         // Tstr
         using Tstr = typename std::tuple_element<0, Tparam>::type;
         // Tcont:
@@ -111,7 +111,7 @@ namespace Pb
         //      (Result<Tres>, Tstr) -> bool
         using Tcont = typename std::tuple_element<1, Tparam>::type;
         // Tres
-        using Tres = typename std::tuple_element<0, Utils::ParamTypeOf<Tcont>>::type::Tval;
+        using Tres = typename std::tuple_element<0, ParamTypeOf<Tcont>>::type::Tval;
         //
         return Combinator<Tstr, Tres>(fparser);
     }

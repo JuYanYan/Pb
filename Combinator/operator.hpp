@@ -166,7 +166,7 @@ namespace Pb
         // 词法分析器的输入类型
         using Tlexinp = Tstr;
         // Continuation
-        using Tretcont = Combinator<Tstr, Tretres>::Tcontinuation;
+        using Tretcont = typename Combinator<Tstr, Tretres>::Tcontinuation;
         //
         return MakeCombinator([=](Tstr str, Tretcont cont) -> bool
         {
@@ -210,7 +210,7 @@ namespace Pb
         // 词法分析器的输入类型
         using Tlexinp = Tstr;
         // Continuation
-        using Tretcont = Combinator<Tstr, Tretres>::Tcontinuation;
+        using Tretcont = typename Combinator<Tstr, Tretres>::Tcontinuation;
         //
         return MakeCombinator([=](Tstr str, Tretcont cont) -> bool
         {
@@ -268,7 +268,7 @@ namespace Pb
         // 最终得到的结果类型
         using Tretres = MakeProductType<Tres1, Tres2>;
         // Continuation
-        using Tretcont = Combinator<Tstr, Tretres>::Tcontinuation;
+        using Tretcont = typename Combinator<Tstr, Tretres>::Tcontinuation;
         //
         return MakeCombinator([=](Tstr str, Tretcont cont) -> bool
         {
@@ -306,7 +306,7 @@ namespace Pb
             // 最终得到的结果类型
         using Tretres = MakeListType<Tres>;
         // Continuation
-        using Tretcont = Combinator<Tstr, Tretres>::Tcontinuation;
+        using Tretcont = typename Combinator<Tstr, Tretres>::Tcontinuation;
         // 计数器类型
         using Tcount = typename ClosureDescriptor::Tval;
         //
@@ -391,7 +391,7 @@ namespace Pb
         // 最终得到的结果类型
         using Tretres = MakeSumType<Tres1, Tres2>;
         // Continuation
-        using Tretcont = Combinator<Tstr, Tretres>::Tcontinuation;
+        using Tretcont = typename Combinator<Tstr, Tretres>::Tcontinuation;
         //
         return MakeCombinator([=](Tstr str, Tretcont cont) -> bool
         {
@@ -424,13 +424,13 @@ namespace Pb
         typename Tstr,
         typename Toldres,
         typename Tfun,
-        typename Tnewres = typename Utils::ReturnTypeOf<Tfun>::Tval>
+        typename Tnewres = typename ReturnTypeOf<Tfun>::Tval>
     requires (
-        Utils::IsInstantOf<Result, Utils::ReturnTypeOf<Tfun>>
+        IsInstantOf<Result, ReturnTypeOf<Tfun>>
     )
     static auto operator>>(const Combinator<Tstr, Toldres> &a, Tfun convert)
     {
-        using Tretcont = Combinator<Tstr, Tnewres>::Tcontinuation;
+        using Tretcont = typename Combinator<Tstr, Tnewres>::Tcontinuation;
         //
         return MakeCombinator([=](Tstr str, Tretcont cont) -> bool
         {
@@ -477,7 +477,7 @@ namespace Pb
         // 最终得到的结果类型
         using Tretres = std::optional<Tres>;
         // Continuation
-        using Tretcont = Combinator<Tstr, Tretres>::Tcontinuation;
+        using Tretcont = typename Combinator<Tstr, Tretres>::Tcontinuation;
         //
         return MakeCombinator([=](Tstr str, Tretcont cont) -> bool
         {
