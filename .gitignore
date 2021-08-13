@@ -1,0 +1,41 @@
+# .gitignore
+# all file
+*
+# without dir
+!*/
+# ignore these:
+.vs/
+.vscode/
+build/
+*/.Objects/
+docs/
+*info/
+*CMakeFiles*
+
+# DO NOT ignore them:
+!*.cpp
+!*.c
+!*.cu
+!*.h
+!*.gitignore
+!*.gitattributes
+!*.hint
+!*.rc
+!*.ico
+!*.manifest
+!*.xlsx
+!*.def
+!*.md
+!*.hpp
+!*.psd
+!*.hna
+!*.bat
+!*.iss
+!*.txt
+!*.cd
+!*.asm
+!*.py
+!*.in
+!LICENSE
+!Makefile
+
