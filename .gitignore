@@ -27,7 +27,7 @@ docs/
 !*.def
 !*.md
 !*.hpp
-!*.psd
+!*.png
 !*.hna
 !*.bat
 !*.iss

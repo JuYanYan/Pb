@@ -1,5 +1,14 @@
 # Pb
-&emsp;&emsp;这是一个玩具级的Parser Combinator，来自于自己的一个表达式解析器。但是我在sympy中发现了更好的实现，因此那个项目被废弃了，我决定将其语法分析的部分代码开源。
+
+<div style="max-height: 256px; margin-left: 2em;">
+    <img style="max-height: 256px;" src="Documents/Images/logo.png" title="logo" />
+</div>
+
+&emsp;&emsp;这是一个玩具级的Parser Combinator，来自于自己的一个表达式解析器。但是我在sympy中发现了更好的实现，因此那个项目被废弃了😔，这个事情令我感到有些沮丧（呜呜呜要抱抱）。
+
+&emsp;&emsp;我只能将之放弃掉。
+
+&emsp;&emsp;但是，现在，我决定，将其语法分析的部分代码开源。
 
 &emsp;&emsp;它可以让你体验到：
 
