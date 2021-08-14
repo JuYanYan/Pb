@@ -3,7 +3,7 @@
  | 文件名称: combinator.hpp
  | 文件作用: 组合子
  | 创建日期: 2021-07-19
- | 更新日期: 2021-08-13
+ | 更新日期: 2021-08-14
  | 开发人员: JuYan
  +----------------------------
  Copyright (C) JuYan, all rights reserved.
@@ -88,6 +88,23 @@ namespace Pb
         inline void Swap(Combinator &_b) noexcept
         {
             parser.swap(_b.parser);
+        }
+        // 执行parser
+        // 返回值类型: tuple(result: Result<Tres>, next: Tstr)
+        inline std::tuple<Result<Tres>, Tstr> operator()(const Tstr &input)
+        {
+            Tstr nextstr;
+            Result<Tres> res;
+            //
+            Parse(input, [&](const Result<Tres> &_res, const Tstr &_nextstr) -> bool
+            {
+                res = _res;
+                nextstr = _nextstr;
+                //
+                return _res.label == Label::Success;
+            });
+            //
+            return { res, nextstr };
         }
     private:
         // 语法分析器函数
