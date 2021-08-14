@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     }
     // parser
     // clang-format off
-    auto numbers = InRange<ConstString>('0', '9') * N(1, Infinity) 
+    auto numbers = Digit<ConstString>() * N(1, Infinity) 
                 >> ToInteger<uint64_t>(10);
     // clang-format on
     // 输入

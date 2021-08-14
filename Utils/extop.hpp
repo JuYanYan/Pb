@@ -14,8 +14,66 @@
 #pragma once
 #if not defined (_INCLUDE_PB_UTILS_EXT_OP_HPP_)
 #define _INCLUDE_PB_UTILS_EXT_OP_HPP_        1
+#include "../Combinator/operator.hpp"
 namespace Pb
 {
     // 十进制数的字符
+    // TYPE<Tstr, Tres>:
+    //  f :=
+    //    () -> Combinator<Tstr, Tres>
+    template<
+        typename Tstr,
+        typename Tres = unichar>
+    static auto Digit()
+    {
+        return CondTerm<Tstr, Tres>([](const Tres &ch) -> bool
+        {
+            return ch >= _CH('0') && ch <= _CH('9');
+        });
+    }
+    // 二进制数的字符
+    // TYPE<Tstr, Tres>:
+    //  f :=
+    //    () -> Combinator<Tstr, Tres>
+    template<
+        typename Tstr,
+        typename Tres = unichar>
+    static auto BinDigit()
+    {
+        return CondTerm<Tstr, Tres>([](const Tres &ch) -> bool
+        {
+            return ch == _CH('0') || ch == _CH('1');
+        });
+    }
+    // 八进制数的字符
+    // TYPE<Tstr, Tres>:
+    //  f :=
+    //    () -> Combinator<Tstr, Tres>
+    template<
+        typename Tstr,
+        typename Tres = unichar>
+    static auto OctDigit()
+    {
+        return CondTerm<Tstr, Tres>([](const Tres &ch) -> bool
+        {
+            return ch >= _CH('0') && ch <= _CH('7');
+        });
+    }
+    // 十六进制数的字符
+    // TYPE<Tstr, Tres>:
+    //  f :=
+    //    () -> Combinator<Tstr, Tres>
+    template<
+        typename Tstr,
+        typename Tres = unichar>
+    static auto HexDigit()
+    {
+        return CondTerm<Tstr, Tres>([](const Tres &ch) -> bool
+        {
+            return (ch >= _CH('0') && ch <= _CH('9'))
+                || (ch >= _CH('a') && ch <= _CH('f'))
+                || (ch >= _CH('A') && ch <= _CH('F'));
+        });
+    }
 }
 #endif // !_INCLUDE_PB_UTILS_EXT_OP_HPP_
