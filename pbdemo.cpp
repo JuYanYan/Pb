@@ -55,19 +55,15 @@ int main(int argc, char **argv)
     ConstString str = argv[1];
     // 执行分析
     std::cout << std::format(">> {}", str.c_str()) << std::endl;
-    bool succ = numbers.Parse(str, [](const Result<uint64_t> &res, const ConstString &nextstr)
+    auto [res, nextstr] = numbers(str);
+    if (res.label == Label::Success)
     {
-        if (res.label == Label::Success)
-        {
-            std::cout << std::format(">> Success.\n   result: {}\n   then: '{}'", res.succ_val, nextstr.c_str()) << std::endl;
-            return true;
-        }
-        else {
-            std::cout << std::format(">> Error.\n   {}", res.failed_val.msg) << std::endl;
-            return false;
-        }
-    });
-    std::cout << std::format(">> {}", succ) << std::endl;
+        std::cout << std::format(">> Success.\n   result: {}\n   then: '{}'", res.succ_val, nextstr.c_str()) << std::endl;
+    }
+    else {
+        std::cout << std::format(">> Error.\n   {}", res.failed_val.msg) << std::endl;
+    }
+    std::cout << std::format(">> {}", res.label == Label::Success) << std::endl;
     //
     return EXIT_SUCCESS;
 }
