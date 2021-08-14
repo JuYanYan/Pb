@@ -397,15 +397,18 @@ auto cssColor = ('#'_t + hexValue) >> [](unichar, uint32_t val) -> Result<Color>
 
 ```c++
 auto triColor = (hexDigit * 3_n) 
-             >> ToInteger<uint32_t>(16) 
-             >> [](uint32_t val) -> Result<Color>
-             {
-                 return Success(Color {
-                     .r = ((val >> 8) & 0xf) << 4, 
-                     .g = ((val >> 4) & 0xf) << 4, 
-                     .b = (val & 0xf) << 4
-                 });
-             };
+                >> ToInteger<uint32_t>(16) 
+                >> [](uint32_t val) -> Result<Color>
+                {
+                    const auto sr = (val >> 8) & 0xf;
+                    const auto sg = (val >> 4) & 0xf;
+                    const auto sb = val & 0xf;
+                    return Success(Color {
+                        .r = static_cast<uint8_t>((sr << 4) | sr), 
+                        .g = static_cast<uint8_t>((sg << 4) | sg),
+                        .b = static_cast<uint8_t>((sb << 4) | sb),
+                    });
+                };
 auto sixColor = (hexDigit * 6_n) 
              >> ToInteger<uint32_t>(16) 
              >> [](uint32_t val) -> Result<Color>
@@ -421,10 +424,10 @@ auto sixColor = (hexDigit * 6_n)
 &emsp;&emsp;回到我们的`cssColor`，这个是我们最终的分析器，自然的，我们只需要留下后面的颜色值，而不需要前面的`#`，使用内建的`Right`函数就可以“丢弃”掉它：
 
 ```c++
-auto cssColor = ('#'_t + (triColor | sixColor)) >> Right<unichar, Color>;
+auto cssColor = ('#'_t + (sixColor | triColor)) >> Right<unichar, Color>;
 ```
 
-&emsp;&emsp;现在，完整的分析器已经构建好了。如果您还有些问题，可以到文末查看所有的源代码。
+&emsp;&emsp;现在，完整的分析器已经构建好了。需要注意的一个小点是，运算符`|`会从左往右的选择第一个完全匹配的项，因此应该尽可能把最长的项放在前面。如果您还有些问题，可以到文末查看所有的源代码。
 
 ### Step3.5 解析字符串
 
@@ -454,3 +457,78 @@ else {
 
 &emsp;&emsp;下面是最终的源代码：
 
+```c++
+#include "../pb.hpp"
+#include <format>
+#include <iostream>
+#include <assert.h>
+//
+struct Color
+{
+    uint8_t r, g, b;  
+};
+//
+int main(int argc, char **argv)
+{
+    using namespace Pb;
+    //
+    if (argc != 2)
+    {
+        std::cout << "tutorial [Args...]"       << std::endl
+                  << "Args:"                  << std::endl
+                  << "    a hex color." << std::endl;
+        return EXIT_FAILURE;
+    }
+    // parser
+    // clang-format off
+    auto hexDigit = HexDigit<ConstString>();
+    auto triColor = (hexDigit * 3_n) 
+                 >> ToInteger<uint32_t>(16) 
+                 >> [](uint32_t val) -> Result<Color>
+                 {
+                     const auto sr = (val >> 8) & 0xf;
+                     const auto sg = (val >> 4) & 0xf;
+                     const auto sb = val & 0xf;
+                     return Success(Color {
+                         .r = static_cast<uint8_t>((sr << 4) | sr), 
+                         .g = static_cast<uint8_t>((sg << 4) | sg),
+                         .b = static_cast<uint8_t>((sb << 4) | sb),
+                     });
+                 };
+    auto sixColor = (hexDigit * 6_n) 
+                 >> ToInteger<uint32_t>(16) 
+                 >> [](uint32_t val) -> Result<Color>
+                 {
+                    return Success(Color {
+                        .r = static_cast<uint8_t>((val >> 16) & 0xff), 
+                        .g = static_cast<uint8_t>((val >> 8) & 0xff),
+                        .b = static_cast<uint8_t>(val & 0xff)
+                    });
+                 };
+    auto cssColor = ('#'_t + (sixColor | triColor)) >> Right<unichar, Color>;
+    // clang-format on
+    // 输入
+    ConstString str = argv[1];
+    // 执行分析
+    std::cout << std::format(">> {}", str.c_str()) << std::endl;
+    
+    auto [res, nextstr] = cssColor(str);
+    if (res.label == Label::Success)
+    {
+        std::cout << std::format(
+            ">> Success.\n   result: r={:#x},g={:#x},b={:#x}\n   then: '{}'", 
+            res.succ_val.r, res.succ_val.g, res.succ_val.b, 
+            nextstr.c_str()
+         ) << std::endl;
+    }
+    else {
+        std::cout << std::format(">> Error.\n   {}", res.failed_val.msg) << std::endl;
+    }
+
+    std::cout << std::format(">> {}", res.label == Label::Success) << std::endl;
+    //
+    return EXIT_SUCCESS;
+}
+```
+
+&emsp;&emsp;该例子程序可以在`tutorial.cpp`中查看。
