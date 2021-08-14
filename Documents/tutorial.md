@@ -68,7 +68,7 @@ clang pbdemo.cpp --std=c++20 -o pbdemo
 
 ## Step2. 基本用法
 
-&emsp;&emsp;接下来我们要做的事情是了解`Pb`的基本用法。请打开仓库中的`pbdemo.cpp`。
+&emsp;&emsp;接下来我们要做的事情是了解`Pb`的基本用法。请打开仓库中的`pbdemo.cpp`（新版本的例子程序可能已经做了简化，但是没关系，下文的内容依然是可用的）。
 
 &emsp;&emsp;本文件总体分了4个部分：
 
@@ -285,8 +285,172 @@ bool succ = numbers.Parse(str, [](const Result<uint64_t> &res, const ConstString
 
 &emsp;&emsp;Continuation函数的返回值表示是否应该继续进行分析，其应该和`Result`的`label`成员相呼应。
 
-## Setp3. 构建我们自己的解析器
+&emsp;&emsp;新版本的`Pb`添加了运算符重载，上面的代码可以被简化为：
 
+```c++
+auto [res, nextstr] = numbers(str);
+```
 
+&emsp;&emsp;`res`依旧是分析器的结果，`nextstr`是分析器停下的位置，与上面的版本是相同的。
 
+## Step3. 构建我们自己的解析器
+
+&emsp;&emsp;现在可以来考虑我们的解析器了。
+
+### Step3.1 确定语法
+
+&emsp;&emsp;严格来说，通常认为有递归定义在里面的才会被叫做语法，但是这里我们暂时不纠结词法和语法的划分，都叫它们语法。
+
+&emsp;&emsp;观察我们要解析的字串：
+
+```css
+#21a657
+#a4c
+```
+
+&emsp;&emsp;可以感受得到，它们都是一个`#`号，加上`3`个长度或者`6`个长度的`十六进制数`，您可能会使用下面的形式化表述来表达它：
+
+```
+  Goal -> HexNum
+HexNum -> '#' HexDigit HexDigit HexDigit
+        | '#' HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit
+```
+
+&emsp;&emsp;当然，无论是否使用一个形式化的表达，您现在应该明白了这个字符串的构成，这样就足够了。
+
+### Step3.2 构建解析器
+
+&emsp;&emsp;现在我们可以来考虑构建我们的解析器了。很显然，我们的输入数据是`ConstString`。
+
+&emsp;&emsp;可以通过如下方式来表达一个十六进制数的字符：
+
+```c++
+auto hexDigit = InRange<ConstString>('0', '9')
+              | InRange<ConstString>('a', 'f')
+              | InRange<ConstString>('A', 'F');
+```
+
+&emsp;&emsp;它很清晰——一个十六进制数组成的字符是[0-9]|[a-f]|[A-F]。当然，更简单的方法是使用内建的`HexDigit`函数，它将返回一个同样的分析器：
+
+```c++
+auto hexDigit = HexDigit<ConstString>();
+```
+
+&emsp;&emsp;同样的，我们需要表示其出现3次或者6次：
+
+```c++
+auto hexColor = hexDigit * 3_n
+              | hexDigit * 6_n;
+```
+
+&emsp;&emsp;最后，我们还需要考虑前面的`#`号，使用`'#'_t`即可在`Pb`中表示一个识别字符`#`的分析器：
+
+```c++
+auto cssColor = '#'_t + hexColor;
+```
+
+&emsp;&emsp;现在，我们的分析器就已经有雏形了，可以简单验证一下它是否能**识别**期望的字符。
+
+&emsp;&emsp;但是，我们希望拿到的是RGB颜色值，而不是成功或者失败的提示信息，因此还需要几步。
+
+### Step3.3 结果类型
+
+&emsp;&emsp;在这里，我们将明确我们的分析器返回的结果类型。
+
+&emsp;&emsp;一个很简单的想法是，使用一个结构体来存放它们。因为颜色值是三个8位无符号整数，因此我们可以这样表示：
+
+```c++
+struct Color
+{
+    uint8_t r, g, b;  
+};
+```
+
+&emsp;&emsp;现在，我们确定了分析器需要返回的结果，还需要指定如何将字符转换为这个结果。
+
+### Step3.4 转换到结果类型
+
+&emsp;&emsp;转换到结果类型本身是非常轻松的一件事——我们只需要把rgb、rrggbb这样的值填充到结构体即可。
+
+&emsp;&emsp;方便的一点是，我们不用像上面那样编写转换函数——字符串转整数的部分是内建的，只需要指定进制然后拿到它们即可：
+
+```c++
+auto hexColor = hexDigit * 3_n
+              | hexDigit * 6_n;
+auto hexValue = hexColor >> ToInteger<uint32_t>(16);
+```
+
+&emsp;&emsp;接着，我们需要把十六进制值转换成对应的颜色值——这个部分只能手动完成了：
+
+```c++
+auto cssColor = ('#'_t + hexValue) >> [](unichar, uint32_t val) -> Result<Color>
+     {
+         return Success(Color {
+            .r = (val >> 16) & 0xff, 
+            .g = (val >> 8) & 0xff, 
+            .b = val & 0xff
+         });
+     };
+```
+
+&emsp;&emsp;您可能已经意识到一点问题了——三字符长度的颜色值是rgb，而六字符长度的是rrggbb，这意味着`#fab`表示的其实是`#ffaabb`。没关系，我们略微修改一下它们，将转换换个地方：
+
+```c++
+auto triColor = (hexDigit * 3_n) 
+             >> ToInteger<uint32_t>(16) 
+             >> [](uint32_t val) -> Result<Color>
+             {
+                 return Success(Color {
+                     .r = ((val >> 8) & 0xf) << 4, 
+                     .g = ((val >> 4) & 0xf) << 4, 
+                     .b = (val & 0xf) << 4
+                 });
+             };
+auto sixColor = (hexDigit * 6_n) 
+             >> ToInteger<uint32_t>(16) 
+             >> [](uint32_t val) -> Result<Color>
+             {
+                 return Success(Color {
+                     .r = (val >> 16) & 0xff, 
+                     .g = (val >> 8) & 0xff, 
+                     .b = val & 0xff
+                 });
+             };
+```
+
+&emsp;&emsp;回到我们的`cssColor`，这个是我们最终的分析器，自然的，我们只需要留下后面的颜色值，而不需要前面的`#`，使用内建的`Right`函数就可以“丢弃”掉它：
+
+```c++
+auto cssColor = ('#'_t + (triColor | sixColor)) >> Right<unichar, Color>;
+```
+
+&emsp;&emsp;现在，完整的分析器已经构建好了。如果您还有些问题，可以到文末查看所有的源代码。
+
+### Step3.5 解析字符串
+
+&emsp;&emsp;现在解析字符串就是轻而易举的事情了，只需要这样即可：
+
+```c++
+auto [res, nextstr] = cssColor("#21a657");
+```
+
+&emsp;&emsp;我们可以尝试打印一下结果：
+
+```c++
+if (res.label == Label::Success)
+{
+    std::cout << std::format(">> Success.\n   result: r={},g={},b={}\n   then: '{}'", res.succ_val.r, res.succ_val.g, res.succ_val.b, nextstr.c_str()) << std::endl;
+}
+else {
+    std::cout << std::format(">> Error.\n   {}", res.failed_val.msg) << std::endl;
+}
+```
+
+&emsp;&emsp;至此，您已经完成了本教程，如果有问题可以参考附录给出的完整程序。
+
+![Final.](Images/final.png)
+
+## 附录
+
+&emsp;&emsp;下面是最终的源代码：
 
