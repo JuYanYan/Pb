@@ -33,23 +33,8 @@ int main(int argc, char **argv)
     }
     // parser
     // clang-format off
-    auto numbers = InRange<ConstString>('0', '9') * N(1, Infinity)
-                >> [](const std::vector<unichar> &list) -> Result<uint64_t>
-                {
-                    uint64_t res = 0;
-                    for (const auto &i : list)
-                    {
-                        const uint64_t val = static_cast<uint64_t>(i - '0');
-                        const uint64_t tmp = res;
-                        res = res * 10 + val;
-                        // 检查运算溢出
-                        if (res < tmp)
-                        {
-                            return Fatal<uint64_t>("The integer constant is too large.");
-                        }
-                    }
-                    return Success<uint64_t>(res);
-                };
+    auto numbers = InRange<ConstString>('0', '9') * N(1, Infinity) 
+                >> ToInteger<uint64_t>(10);
     // clang-format on
     // 输入
     ConstString str = argv[1];

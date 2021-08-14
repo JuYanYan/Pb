@@ -3,7 +3,7 @@
  | 文件名称: pb.hpp
  | 文件作用: 总体需要的头文件
  | 创建日期: 2021-08-13
- | 更新日期: 2021-08-13
+ | 更新日期: 2021-08-14
  | 开发人员: JuYan
  +----------------------------
  Copyright (C) JuYan, all rights reserved.
@@ -21,6 +21,7 @@
 #include <vector>
 #include <optional>
 #include <stdint.h>
+#include <assert.h>
 #include <functional>
 #include <type_traits>
 // 一些需要的类型
@@ -39,6 +40,8 @@ namespace Pb
 }
 //
 #include "Utils/str.hpp"
+#include "Utils/extop.hpp"
+#include "Utils/extconvert.hpp"
 #include "TrieTree/trietree.hpp"
 #include "Utils/resultconvert.hpp"
 #include "Combinator/operator.hpp"
