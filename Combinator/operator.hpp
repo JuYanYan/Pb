@@ -39,7 +39,7 @@ namespace Pb
         return ClosureDescriptor{ .Nmin = Min, .Nmax = Max };
     }
     // N
-    static inline auto operator""_n(unsigned long long ntimes) noexcept
+    static inline ClosureDescriptor operator""_n(unsigned long long ntimes) noexcept
     {
         const int32_t n = static_cast<int32_t>(ntimes);
         //
@@ -52,7 +52,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres = std::monostate>
-    static auto Empty()
+    static inline Combinator<Tstr, Tres> Empty()
     {
         using Tcont = typename Combinator<Tstr, Tres>::Tcontinuation;
         //
@@ -68,7 +68,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres = std::monostate>
-    static auto Nothing()
+    static inline Combinator<Tstr, Tres> Nothing()
     {
         using Tcont = typename Combinator<Tstr, Tres>::Tcontinuation;
         //
@@ -90,7 +90,7 @@ namespace Pb
         typename Tstr,
         typename Tres,
         typename Tfcond>
-    static auto CondTerm(Tfcond cond)
+    static Combinator<Tstr, Tres> CondTerm(Tfcond cond)
     {
         using Tcont = typename Combinator<Tstr, Tres>::Tcontinuation;
         //
@@ -124,7 +124,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres>
-    static auto Term(const Tres &need_ch)
+    static inline Combinator<Tstr, Tres> Term(const Tres &need_ch)
     {
         return CondTerm<Tstr, Tres>([=](const Tres &ch) -> bool
         {
@@ -142,7 +142,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres>
-    static auto InRange(const Tres &a, const Tres &b)
+    static inline Combinator<Tstr, Tres> InRange(const Tres &a, const Tres &b)
     {
         return CondTerm<Tstr, Tres>([=](const Tres &ch) -> bool
         {
