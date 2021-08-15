@@ -113,5 +113,39 @@ namespace Pb
         //
         return ('0'_t + 'x'_t + value) >> Third<unichar, unichar, Tres>;
     }
+    // 识别一个标识符的分析器
+    // 一个标识符是以任意一个字母或者下划线或者符号'$'开头, 后跟数字或者字母的东东
+    template<
+        typename Tstr,
+        typename Tres = unistring>
+    static inline Combinator<Tstr, Tres> Identifier()
+    {
+        // clang-format off
+        // 标识符开始的字符
+        auto begch = '$'_t
+                   | '_'_t
+                   | InRange<Tstr>('a', 'z')
+                   | InRange<Tstr>('A', 'Z');
+        // 标识符重复k次的字符
+        auto bdych = '_'_t
+                   | InRange<Tstr>('a', 'z')
+                   | InRange<Tstr>('A', 'Z')
+                   | InRange<Tstr>('0', '9');
+        // 标识符
+        auto ident = (begch + bdych * N(0, Infinity))
+                >> [](unichar ch, const std::vector<unichar> &name) -> Result<Tres>
+                {
+                    Tres res;
+                    res.push_back(ch);
+                    for (const auto &i : name)
+                    {
+                        res.push_back(i);
+                    }
+                    //
+                    return Success<Tres>(res);
+                };
+        // clang-format on
+        return ident;
+    }
 }
 #endif // !_INCLUDE_PB_UTILS_EXT_OP_HPP_
