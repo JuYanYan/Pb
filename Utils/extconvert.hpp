@@ -43,6 +43,18 @@ namespace Pb
             }
             return Success<Tint>(res);
         };
+    }   
+    // 将字符转换为index进制的浮点数
+    // 默认是十进制
+    template<
+        typename Tflt,
+        typename Tch = unichar>
+    static inline auto ToFloat(int index = 10)
+    {
+        return [=](const std::vector<Tch> &list) -> Result<Tflt>
+        {
+            return Success<Tflt>(1.0);
+        };
     }
 }
 #endif // !_INCLUDE_PB_UTILS_EXT_CONVERT_HPP_

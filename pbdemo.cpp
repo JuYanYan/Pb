@@ -3,7 +3,7 @@
  | 文件名称: pbdemo.cpp
  | 文件作用: 例子程序
  | 创建日期: 2021-08-13
- | 更新日期: 2021-08-13
+ | 更新日期: 2021-08-15
  | 开发人员: JuYan
  +----------------------------
  Copyright (C) JuYan, all rights reserved.
@@ -28,13 +28,14 @@ int main(int argc, char **argv)
     {
         std::cout << "pbdemo [Args...]"       << std::endl
                   << "Args:"                  << std::endl
-                  << "    a decimal integer." << std::endl;
+                  << "    a integer."         << std::endl;
         return EXIT_FAILURE;
     }
     // parser
     // clang-format off
-    auto numbers = Digit<ConstString>() * N(1, Infinity) 
-                >> ToInteger<uint64_t>(10);
+    auto numbers = HexInteger<ConstString, uint64_t>()
+                 | OctInteger<ConstString, uint64_t>()
+                 | Integer<ConstString, uint64_t>();
     // clang-format on
     // 输入
     ConstString str = argv[1];
