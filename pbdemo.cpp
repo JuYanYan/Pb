@@ -24,32 +24,40 @@ int main(int argc, char **argv)
 {
     using namespace Pb;
     //
-    if (argc != 2)
+    if (argc < 2)
     {
         std::cout << "pbdemo [Args...]"       << std::endl
                   << "Args:"                  << std::endl
                   << "    a integer."         << std::endl;
         return EXIT_FAILURE;
     }
-    // parser
-    // clang-format off
-    auto numbers = HexInteger<ConstString, uint64_t>()
-                 | OctInteger<ConstString, uint64_t>()
-                 | Integer<ConstString, uint64_t>();
-    // clang-format on
-    // 输入
-    ConstString str = argv[1];
-    // 执行分析
-    std::cout << std::format(">> {}", str.c_str()) << std::endl;
-    auto [res, nextstr] = numbers(str);
-    if (res.label == Label::Success)
-    {
-        std::cout << std::format(">> Success.\n   result: {}\n   then: '{}'", res.succ_val, nextstr.c_str()) << std::endl;
-    }
     else {
-        std::cout << std::format(">> Error.\n   {}", res.failed_val.msg) << std::endl;
+        for (int cnt = 1; cnt < argc; cnt += 1)
+        {
+            // parser
+            // clang-format off
+            auto numbers = HexInteger<ConstString, uint64_t>()
+                         | OctInteger<ConstString, uint64_t>()
+                         | Integer<ConstString, uint64_t>();
+            // clang-format on
+            // 输入
+            ConstString str = argv[cnt];
+            // 执行分析
+            std::cout << std::format(">> {}", str.c_str()) << std::endl;
+            auto [res, nextstr] = numbers(str);
+            if (res.label == Label::Success)
+            {
+                std::cout << std::format(
+                    ">> Success.\n   result: {}\n   then: '{}'", 
+                    res.succ_val, nextstr.c_str()
+                ) << std::endl;
+            }
+            else {
+                std::cout << std::format(">> Error.\n   {}", res.failed_val.msg) << std::endl;
+            }
+            std::cout << std::format(">> {}", res.label == Label::Success) << std::endl;
+        }
     }
-    std::cout << std::format(">> {}", res.label == Label::Success) << std::endl;
     //
     return EXIT_SUCCESS;
 }

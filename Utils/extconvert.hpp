@@ -43,17 +43,24 @@ namespace Pb
             }
             return Success<Tint>(res);
         };
-    }   
-    // 将字符转换为index进制的浮点数
-    // 默认是十进制
+    }
+    // 将字符转换为字符串
     template<
-        typename Tflt,
+        typename Tstr,
         typename Tch = unichar>
-    static inline auto ToFloat(int index = 10)
+    static inline auto ToString()
     {
-        return [=](const std::vector<Tch> &list) -> Result<Tflt>
+        return [=](const std::vector<Tch> &list) -> Result<Tstr>
         {
-            return Success<Tflt>(1.0);
+            Tstr res;
+            res.reserve(list.size() + 1);
+            //
+            for (const auto &i : list)
+            {
+                res.push_back(i);
+            }
+            //
+            return Success<Tstr>(res);
         };
     }
 }

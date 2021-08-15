@@ -26,7 +26,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres = unichar>
-    static inline auto Digit()
+    static inline Combinator<Tstr, Tres> Digit()
     {
         return CondTerm<Tstr, Tres>([](const Tres &ch) -> bool
         {
@@ -40,7 +40,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres = unichar>
-    static inline auto BinDigit()
+    static inline Combinator<Tstr, Tres> BinDigit()
     {
         return CondTerm<Tstr, Tres>([](const Tres &ch) -> bool
         {
@@ -54,7 +54,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres = unichar>
-    static inline auto OctDigit()
+    static inline Combinator<Tstr, Tres> OctDigit()
     {
         return CondTerm<Tstr, Tres>([](const Tres &ch) -> bool
         {
@@ -68,7 +68,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres = unichar>
-    static inline auto HexDigit()
+    static inline Combinator<Tstr, Tres> HexDigit()
     {
         return CondTerm<Tstr, Tres>([](const Tres &ch) -> bool
         {
@@ -83,7 +83,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres = uint64_t>
-    static inline auto Integer()
+    static inline Combinator<Tstr, Tres> Integer()
     {
         return Digit<Tstr>() * N(1, Infinity) >> ToInteger<Tres>(static_cast<Tres>(10));
     }
@@ -93,7 +93,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres = uint64_t>
-    static inline auto OctInteger()
+    static inline Combinator<Tstr, Tres> OctInteger()
     {
         const auto body = OctDigit<Tstr>() * N(1, Infinity);
         const auto value = body >> ToInteger<Tres>(static_cast<Tres>(8));
@@ -106,7 +106,7 @@ namespace Pb
     template<
         typename Tstr,
         typename Tres = uint64_t>
-    static inline auto HexInteger()
+    static inline Combinator<Tstr, Tres> HexInteger()
     {
         const auto body = HexDigit<Tstr>() * N(1, Infinity);
         const auto value = body >> ToInteger<Tres>(static_cast<Tres>(16));
