@@ -3,7 +3,7 @@
  | 文件名称: str.hpp
  | 文件作用: 词法分析器(划分单个字符)
  | 创建日期: 2021-07-19
- | 更新日期: 2021-08-13
+ | 更新日期: 2021-08-17
  | 开发人员: JuYan
  +----------------------------
  Copyright (C) JuYan, all rights reserved.
@@ -66,7 +66,7 @@ namespace Pb
         {
             return str;
         }
-    private:
+    protected:
         size_t len;
         const unichar* str;
     };
