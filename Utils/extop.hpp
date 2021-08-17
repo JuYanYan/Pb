@@ -3,7 +3,7 @@
  | 文件名称: extop.hpp
  | 文件作用: 拓展的操作符
  | 创建日期: 2021-08-14
- | 更新日期: 2021-08-15
+ | 更新日期: 2021-08-17
  | 开发人员: JuYan
  +----------------------------
  Copyright (C) JuYan, all rights reserved.
@@ -98,7 +98,7 @@ namespace Pb
         const auto body = OctDigit<Tstr>() * N(1, Infinity);
         const auto value = body >> ToInteger<Tres>(static_cast<Tres>(8));
         //
-        return ('0'_t + value) >> Right<unichar, Tres>;
+        return (Term<Tstr>(_CH('0')) + value) >> Right<unichar, Tres>;
     }
     // 识别十六进制整数的分析器
     // 十六进制整数是0x开头,'0'-'9','a'-'f','A'-'F'之间的任意字符组成的:
@@ -111,7 +111,8 @@ namespace Pb
         const auto body = HexDigit<Tstr>() * N(1, Infinity);
         const auto value = body >> ToInteger<Tres>(static_cast<Tres>(16));
         //
-        return ('0'_t + 'x'_t + value) >> Third<unichar, unichar, Tres>;
+        return (Term<Tstr>(_CH('0')) + Term<Tstr>(_CH('x')) + value) 
+            >> Third<unichar, unichar, Tres>;
     }
     // 识别一个标识符的分析器
     // 一个标识符是以任意一个字母或者下划线或者符号'$'开头, 后跟数字或者字母的东东
@@ -122,15 +123,15 @@ namespace Pb
     {
         // clang-format off
         // 标识符开始的字符
-        auto begch = '$'_t
-                   | '_'_t
-                   | InRange<Tstr>('a', 'z')
-                   | InRange<Tstr>('A', 'Z');
+        auto begch = Term<Tstr>(_CH('$'))
+                   | Term<Tstr>(_CH('_'))
+                   | InRange<Tstr>(_CH('a'), _CH('z'))
+                   | InRange<Tstr>(_CH('A'), _CH('Z'));
         // 标识符重复k次的字符
-        auto bdych = '_'_t
-                   | InRange<Tstr>('a', 'z')
-                   | InRange<Tstr>('A', 'Z')
-                   | InRange<Tstr>('0', '9');
+        auto bdych = Term<Tstr>(_CH('_'))
+                   | InRange<Tstr>(_CH('a'), _CH('z'))
+                   | InRange<Tstr>(_CH('A'), _CH('Z'))
+                   | InRange<Tstr>(_CH('0'), _CH('9'));
         // 标识符
         auto ident = (begch + bdych * N(0, Infinity))
                 >> [](unichar ch, const std::vector<unichar> &name) -> Result<Tres>
